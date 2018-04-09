@@ -1,4 +1,8 @@
-module.exports = function(httpPort, httpsPort) {
+module.exports = function() {
+  
+  //log cwd
+  global.winston.info('CWD: ' + process.cwd());
+  
   //Get nconf module
   var nconf = require('nconf');
 
@@ -11,11 +15,18 @@ module.exports = function(httpPort, httpsPort) {
 
   //Create an instance of express.js for the app
   var app = express();
-  app.get('/*',function(req,res) {
-    res.send('Hello, World!');
-  });
+  
+  //Use the pug templating engine
+  app.set('view engine', 'pug');
+  app.set('views', process.cwd() + '/app/views/');
+  
+  //Audio router
+  app.use('/audio', require('./routes/audio.js'));
+  
+  //Root router
+  app.use('/',require('./routes/main.js'));
   
   //Create the servers and listen on the specified ports
-  http.createServer(app).listen(httpPort);
+  http.createServer(app).listen(8080);
   
 }

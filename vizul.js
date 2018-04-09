@@ -6,6 +6,8 @@ global.winston = require('winston');
 
 const version = '0.0.1';
 
+global._root = __dirname;
+
 //Set the version
 program
   .version(version)
@@ -24,7 +26,7 @@ program
   
   winston.info('Booting up server...');
   //Boot up the server!
-  require('./server/index.js',8080,8081)();
+  require('./server/index.js')();
 });
 
 
