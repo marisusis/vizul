@@ -1,30 +1,30 @@
 module.exports = function() {
   
   //log cwd
-  global.winston.info('CWD: ' + process.cwd());
+  global.winston.info("CWD: " + process.cwd());
   
   //Get nconf module
-  var nconf = require('nconf');
+  var nconf = require("nconf");
 
   ////Get express.js module
-  var express = require('express');
+  var express = require("express");
 
   //Get http/https modules
-  var http = require('http');
-  var https = require('https');
+  var http = require("http");
+  var https = require("https");
 
   //Create an instance of express.js for the app
   var app = express();
   
   //Use the pug templating engine
-  app.set('view engine', 'pug');
-  app.set('views', process.cwd() + '/app/views/');
+  app.set("view engine", "pug");
+  app.set("views", process.cwd() + "/app/views/");
   
   //Audio router
-  app.use('/audio', require('./routes/audio.js'));
+  app.use("/audio", require("./routes/audio.js"));
   
   //Root router
-  app.use('/',require('./routes/main.js'));
+  app.use("/",require("./routes/main.js"));
   
   //Create the servers and listen on the specified ports
   http.createServer(app).listen(8080);

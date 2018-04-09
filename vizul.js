@@ -1,32 +1,32 @@
 //Get a commander instance
-var program = require('commander');
+var program = require("commander");
 
 //Get an instance of winston
-global.winston = require('winston');
+global.winston = require("winston");
 
-const version = '0.0.1';
+const version = "0.0.1";
 
 global._root = __dirname;
 
 //Set the version
 program
   .version(version)
-  .option('-v, --verbose', 'Verbose logging');
+  .option("-v, --verbose", "Verbose logging");
 
 //Start command
 program
-  .command('start')
-  .option('-p, --port <port>', 'Set the port for the http server')
+  .command("start")
+  .option("-p, --port <port>", "Set the port for the http server")
   .action(function(cmd) {
   //Load the logger
   if (program.verbose) {
-    global.winston.level = 'debug';
-    global.winston.debug('Using verbose logging');
-  } else global.winston.level = 'info';
+    global.winston.level = "debug";
+    global.winston.debug("Using verbose logging");
+  } else global.winston.level = "info";
   
-  winston.info('Booting up server...');
+  winston.info("Booting up server...");
   //Boot up the server!
-  require('./server/index.js')();
+  require("./server/index.js")();
 });
 
 
