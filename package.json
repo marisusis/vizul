@@ -25,11 +25,13 @@
     "path": "^0.12.7",
     "pug": "^2.0.3",
     "request": "^2.85.0",
+    "send-seekable": "^1.0.4",
     "socket.io": "^2.1.0",
     "soundcloud-resolve": "^1.0.2",
     "winston": "^2.4.1"
   },
   "devDependencies": {
-    "gulp": "^3.9.1"
+    "gulp": "^3.9.1",
+    "gulp-sass": "^4.0.1"
   }
 }

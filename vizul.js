@@ -1,6 +1,10 @@
 //Get a commander instance
 var program = require("commander");
 
+
+//File system
+const fs = require("fs");
+
 //Get an instance of winston
 global.winston = require("winston");
 
@@ -23,6 +27,13 @@ program
     global.winston.level = "debug";
     global.winston.debug("Using verbose logging");
   } else global.winston.level = "info";
+  
+  //Create cache folder
+  fs.mkdir(global._root  + "/cache/", function() {
+    global.winston.info("Loaded cache folder...");
+  });
+  
+  
   
   winston.info("Booting up server...");
   //Boot up the server!

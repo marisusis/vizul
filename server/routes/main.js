@@ -10,6 +10,10 @@ router.get("/js/*", function(req, res) {
   res.sendFile(path.resolve(global._root + "/app/scripts/" + req.params[0]));
 });
 
+router.get("/css/*", function(req, res) {
+  res.sendFile(path.resolve(global._root + "/app/styles/css/" + req.params[0]));
+});
+
 router.get("/", function(req, res) {
   global.winston.info("Loading home page...");
   res.render("index", { title: "Hey", message: "Hello there!" })

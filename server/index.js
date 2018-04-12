@@ -8,6 +8,9 @@ module.exports = function() {
 
   ////Get express.js module
   var express = require("express");
+  
+  //Send seekable
+  var sendSeekable = require("send-seekable");
 
   //Get http/https modules
   var http = require("http");
@@ -15,6 +18,8 @@ module.exports = function() {
 
   //Create an instance of express.js for the app
   var app = express();
+  
+  app.use(sendSeekable);
   
   //Use the pug templating engine
   app.set("view engine", "pug");

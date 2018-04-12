@@ -1,10 +1,15 @@
 html
   head
     title VIZUL
+    link(rel="stylesheet", href="/css/base.css")
   body
-    h1 Welcome to VIZUL!
-    input#url
-    button#submit Load
-    audio#audio(controls)
+    .container
+      .title
+        h1 VIZUL
+        span paste a link to start
+      .start
+        input#url(type="text", placeholder="https://soundcloud.com/user/song")
+        button#go GO
+      audio#audio(controls)
     script(src="/js/jquery.min.js")
     script(src="/js/index.js")
