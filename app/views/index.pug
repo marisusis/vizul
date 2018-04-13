@@ -10,6 +10,15 @@ html
       .start
         input#url(type="text", placeholder="https://soundcloud.com/user/song")
         button#go GO
-      audio#audio(controls)
+      .visualizer
+        canvas#canvas
+        .controls
+          .label
+            span.song-title
+            span.song-artist
+      audio#audio
     script(src="/js/jquery.min.js")
+    script(src="/js/chroma.min.js")
+    script(src="/js/math.min.js")
+    script(src="/js/visualizer.js")
     script(src="/js/index.js")
