@@ -116,12 +116,14 @@
 
     ctx.fillStyle = "#fff";
     
-    var _color = chroma.scale(root.COLOR).gamma(2).domain([0,array.length]);
+    var _color = chroma.scale(root.COLOR).mode("lch").domain([0,math.max(array)]);
 
     for(var i = 0; i < array.length; i++) {
-      ctx.fillStyle = _color(i).css();
+      
 
       var val = array[i];
+      
+      ctx.fillStyle = _color(Math.floor(val)).css();
 
       ctx.fillRect(i * (barWidth + barSpacing), canvas.height / 2 - val / 2, barWidth, array[i]);
     }

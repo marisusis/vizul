@@ -15,10 +15,10 @@ $(document).ready(function() {
               
               var pal = c.getPalette(img);
               
-              var out = [pal[0],pal[1],pal[2]];
+              var out = [pal[0],pal[1]];
               
               var done = out.map(x => {
-                return chroma(x).luminance(0.70).saturate(3).rgb();
+                return chroma(x).luminance(0.60).saturate(2).rgb();
               });
 
              window.COLOR = done;
