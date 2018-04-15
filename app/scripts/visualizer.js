@@ -46,6 +46,9 @@
 
   //Create analyser node
   var analyserNode = audioCtx.createAnalyser();
+  
+  
+  var scaleNode = audioCtx.createGain();
 
   var delayNode = audioCtx.createDelay();
 
@@ -67,7 +70,11 @@
   gainNode.gain.value = 1;
 
   //Connect the nodes
-  source.connect(analyserNode);
+  source.connect(scaleNode);
+  
+  root.gain = scaleNode;
+  
+  scaleNode.connect(analyserNode);
 
   analyserNode.connect(processorNode);
 
@@ -105,12 +112,14 @@
     array = exponentialTransform(array);
     array = powTransform(array);
     array = normalizeAmplitude(array);
-    array = experimentalTransform(array);
+    array = experimentalTransform(array,6);
 
     ctx.fillStyle = "#fff";
+    
+    var _color = chroma.scale(root.COLOR).gamma(2).domain([0,array.length]);
 
     for(var i = 0; i < array.length; i++) {
-      //       ctx.fillStyle = chroma([100,0,0]).css();
+      ctx.fillStyle = _color(i).css();
 
       var val = array[i];
 
@@ -338,7 +347,6 @@
         section = array.slice(sectLen - 2 , 2*sectLen + 2) // 22 42
       } else if(2*sectLen+1 <= i && i <= array.length) {
         section = array.slice(2*sectLen-2, array.length) // 43 63
-        arr = array.map(x => x*3);
       }
 
       
@@ -350,7 +358,7 @@
       var r = Math.pow(dv, (1 - (dv * pdv)) * powerFactor) * 255
 
       var dr = r / 255
-      var powerFactor2 = normalize(v, math.max(section), math.min(section), 1, 1.5);
+      var powerFactor2 = normalize(v, math.max(section), math.min(section), 1, 2);
       var r2 = Math.pow(dr, (1 - (dr * pdv)) * powerFactor) * 255
       newArr[i] = r2;
       // 		newArr[i] = section[i%21]||0

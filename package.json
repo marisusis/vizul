@@ -21,6 +21,7 @@
     "express": "^4.16.3",
     "gulp": "^3.9.1",
     "https": "^1.0.0",
+    "md5": "^2.2.1",
     "nconf": "^0.10.0",
     "path": "^0.12.7",
     "pug": "^2.0.3",
@@ -28,7 +29,9 @@
     "send-seekable": "^1.0.4",
     "socket.io": "^2.1.0",
     "soundcloud-resolve": "^1.0.2",
-    "winston": "^2.4.1"
+    "winston": "^2.4.1",
+    "youtube-dl": "^1.12.2",
+    "youtube-mp3": "^0.1.2"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
