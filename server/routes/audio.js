@@ -5,7 +5,7 @@ var md5 = require("md5");
 //Youtube downloader
 var ytdl = require("youtube-dl");
 
-var request = require("request")
+var request = require("request");
 
 //Get url module
 const {
@@ -110,5 +110,5 @@ router.get("/stream/*", function(req, res) {
 });
 
 router.get("/artwork", function(req, res) {
-  request(req.query.url).pipe(res)
+  request(req.query.url).pipe(res);
 });

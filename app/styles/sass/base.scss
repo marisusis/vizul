@@ -107,11 +107,47 @@ body {
       }
       .controls {
         width: 100%;
-        height: 60px;
+        height: 40px;
         bottom: 0;
         left: 0;
         position: absolute;
         background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .bar {
+          position: relative;
+          height: 100%;
+          display: block;
+          width: 100%;
+          .line {
+            width: 100%;
+            height: 2px;
+            position: absolute;
+            background: #fff;
+            bottom: 0;
+            transition: width 1000ms, height 200ms;
+          }
+          .time {
+            position: absolute;
+            z-index: 1000;
+            color: #fff;
+            left: 0;
+            transition: right 1000ms;
+            width: 50px;
+            text-align: center;
+            font-size: 15px;
+            top: 15px;
+          }
+          &:hover {
+            .line {
+              height: 100%;
+            }
+            .time {
+              color: #000;
+            }
+          }
+        }
       }
     }
     &.mode--viz {
