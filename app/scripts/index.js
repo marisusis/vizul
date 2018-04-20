@@ -27,8 +27,6 @@ $(document).ready(function() {
           return index;
         }(mainColor);
         
-        console.log(greatestChannel, mainColor);
-        
         //Get three colors from the image
         const stolenColors = colorThief.getPalette(img, 8);
         
@@ -37,13 +35,27 @@ $(document).ready(function() {
           return x[greatestChannel];
         });
         
+        //Apply some efects to the colors
+        const effects = modifiedOrder.map(function(x) {
+          return chroma(x).saturate(1).rgb();
+        });
+        
         //Set the color of the seeking bar
         $(".line").css({
-          "background": chroma(mainColor).css()
+          "background": chroma(effects[effects.length-1]).css()
+        });
+        
+        $("span.time").css({
+          "color": chroma(effects[effects.length-1]).css()
         });
         
         
-        window.COLOR = modifiedOrder;
+        $(".title h1").css({
+          "color": chroma(effects[6]).css()
+        });
+        
+        
+        window.COLOR = effects;
       }
 
     });

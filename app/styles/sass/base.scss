@@ -14,6 +14,7 @@ body {
     flex-flow: column nowrap;
     align-items: center;
     justify-content: space-between;
+    user-select: none;
     .title {
       position: relative;
       width: 480px;
@@ -133,7 +134,7 @@ body {
             z-index: 1000;
             color: #fff;
             left: 0;
-            transition: right 1000ms;
+            transition: right 1000ms, top 200ms;
             width: 50px;
             text-align: center;
             font-size: 15px;
@@ -144,7 +145,7 @@ body {
               height: 100%;
             }
             .time {
-              color: #000;
+              top: -20px;
             }
           }
         }

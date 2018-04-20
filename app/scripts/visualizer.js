@@ -1,7 +1,7 @@
 //  (function(window) {
-var barCount = 127;
-var barSpacing = 6;
-var barWidth = 1;
+var barCount = 127; //127
+var barSpacing = 5; //6
+var barWidth = 2; //1
 var spectrumDimensionScalar = 4.5;
 var spectrumMaxExponent = 5;
 var spectrumMinExponent = 3;
@@ -19,7 +19,7 @@ var frequencyMax = 1200;
 var SpectrumLogScale = 2.55;
 var resRatio = (window.innerWidth / window.innerHeight);
 
-var spectrumHeight = 300;
+var spectrumHeight = 300; //300
 
 function SpectrumEase(Value) {
   return Math.pow(Value, SpectrumLogScale);
@@ -128,7 +128,7 @@ audio.ontimeupdate = function(event) {
     "width": percent + "%"
   })
   
-  $(".time").text(Math.floor(audio.currentTime));
+  $(".time").text(moment().minutes(0).seconds(audio.currentTime).format("mm:ss"));
   
 }
 
@@ -155,7 +155,7 @@ function draw() {
   ctx.fillStyle = "#fff";
 
   //Get the color scale function
-  var _color = chroma.scale(window.COLOR).domain([0, math.max(array)]);
+  var _color = chroma.scale(window.COLOR).domain([0, math.max(array)]).mode("lch");
   
   var bass = array.slice(0,20);
   
@@ -178,7 +178,7 @@ function draw() {
   }
 };
 
-
+/* code taken from visualizer by TheNexusAvenger on github */
 function normalizeAmplitude(array) {
   var values = [];
   for(var i = 0; i < barCount; i++) {
@@ -343,7 +343,7 @@ function savitskyGolaySmooth(array) {
   }
   return newArr;
 }
-
+/* ^^ code by TheNexusAvenger */
 var factors = [];
 
 function powTransform(arr) {
@@ -370,7 +370,7 @@ function powTransform(arr) {
     var v = array[i];
 
     //Apply the algorithm
-    var first = pass(v, 2, 4);
+    var first = pass(v, 1, 4);
 
 
     //The algorithm

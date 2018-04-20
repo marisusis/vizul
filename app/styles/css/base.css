@@ -11,7 +11,8 @@ body {
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
-    justify-content: space-between; }
+    justify-content: space-between;
+    user-select: none; }
     body .container .title {
       position: relative;
       width: 480px;
@@ -118,7 +119,7 @@ body {
             z-index: 1000;
             color: #fff;
             left: 0;
-            transition: right 1000ms;
+            transition: right 1000ms, top 200ms;
             width: 50px;
             text-align: center;
             font-size: 15px;
@@ -126,7 +127,7 @@ body {
           body .container .visualizer .controls .bar:hover .line {
             height: 100%; }
           body .container .visualizer .controls .bar:hover .time {
-            color: #000; }
+            top: -20px; }
     body .container.mode--viz .visualizer {
       display: flex; }
     body .container.mode--viz .title {
