@@ -3,7 +3,8 @@ body {
   padding: 0;
   margin: 0;
   font-family: "Josefin Sans", sans-serif;
-  background: #000; }
+  background: #000;
+  overflow: hidden; }
   body .container {
     position: absolute;
     height: 100%;
@@ -106,14 +107,24 @@ body {
           position: relative;
           height: 100%;
           display: block;
-          width: 100%; }
+          width: 100%;
+          z-index: 9999; }
           body .container .visualizer .controls .bar .line {
             width: 100%;
             height: 2px;
             position: absolute;
             background: #fff;
             bottom: 0;
-            transition: width 1000ms, height 200ms; }
+            transition: width 200ms, height 200ms; }
+          body .container .visualizer .controls .bar .line-hover {
+            height: 2px;
+            width: 0;
+            opacity: 0;
+            position: absolute;
+            background: #fff;
+            bottom: 0;
+            transition: height 200ms, opacity 200ms;
+            border-right: solid 2px #fff; }
           body .container .visualizer .controls .bar .time {
             position: absolute;
             z-index: 1000;
@@ -124,10 +135,29 @@ body {
             text-align: center;
             font-size: 15px;
             top: 15px; }
-          body .container .visualizer .controls .bar:hover .line {
-            height: 100%; }
-          body .container .visualizer .controls .bar:hover .time {
-            top: -20px; }
+          body .container .visualizer .controls .bar .time-hover {
+            position: absolute;
+            z-index: 1001;
+            color: #fff;
+            left: 0;
+            width: 50px;
+            text-align: center;
+            font-size: 15px;
+            top: 15px;
+            opacity: 0;
+            transition: top 200ms, opacity 200ms; }
+          body .container .visualizer .controls .bar:hover {
+            cursor: crosshair; }
+            body .container .visualizer .controls .bar:hover .line {
+              height: 100%; }
+            body .container .visualizer .controls .bar:hover .line-hover {
+              opacity: 0.5;
+              height: 100%; }
+            body .container .visualizer .controls .bar:hover .time {
+              top: -20px; }
+            body .container .visualizer .controls .bar:hover .time-hover {
+              top: -20px;
+              opacity: 1; }
     body .container.mode--viz .visualizer {
       display: flex; }
     body .container.mode--viz .title {

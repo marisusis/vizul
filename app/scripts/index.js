@@ -1,4 +1,60 @@
 $(document).ready(function() {
+  
+  var mouseX = 0;
+  
+  
+  $(".bar").on("mousemove", function(event) {
+    
+    mouseX = event.pageX;
+    
+    $(".line-hover").css({
+      "width": event.pageX + "px"
+    });
+    
+    var timeOffset = function (x) {
+      
+      var left = 0;
+      
+      left = event.pageX - $(".time-hover").innerWidth();
+      
+      if (left < 0) {
+        left = 0;
+      }
+      
+      return left;
+      
+    }(event.pageX);
+    
+    $(".time-hover").css({
+      "left": timeOffset + "px"
+    });
+    
+    var seconds = function (maxWidth, width, maxTime) {
+      var sec = 0;
+      
+      sec = (width/maxWidth) * maxTime;
+      
+      return sec;
+      
+      } (window.innerWidth, event.pageX, audio.duration);
+    
+    $(".time-hover").text(moment().minutes(0).seconds(seconds).format("mm:ss"));
+    
+  });
+  
+  $(".bar").on("click", function(event) {
+     var seconds = function (maxWidth, width, maxTime) {
+      var sec = 0;
+      
+      sec = (width/maxWidth) * maxTime;
+      
+      return sec;
+      
+      } (window.innerWidth, mouseX, audio.duration);
+    
+    audio.currentTime = seconds;
+  });
+  
   $("#go").on("click", function(event) {
     $.getJSON("/audio?url=" + $("#url").val(), function(res) {
       document.getElementById("audio").src = "/audio/stream/" + res.key;
@@ -40,9 +96,16 @@ $(document).ready(function() {
           return chroma(x).saturate(1).rgb();
         });
         
+        
+        
         //Set the color of the seeking bar
         $(".line").css({
           "background": chroma(effects[effects.length-1]).css()
+        });
+        
+        $(".line-hover").css({
+          "background": chroma(effects[effects.length-1]).css(),
+          "border-right-color": chroma(effects[effects.length-1]).luminance(0.7).alpha(0.8).css()
         });
         
         $("span.time").css({

@@ -6,6 +6,7 @@ body {
   margin: 0;
   font-family: "Josefin Sans", sans-serif;
   background: #000;
+  overflow: hidden;
   .container {
     position: absolute;
     height: 100%;
@@ -121,13 +122,24 @@ body {
           height: 100%;
           display: block;
           width: 100%;
+          z-index: 9999;
           .line {
             width: 100%;
             height: 2px;
             position: absolute;
             background: #fff;
             bottom: 0;
-            transition: width 1000ms, height 200ms;
+            transition: width 200ms, height 200ms;
+          }
+          .line-hover {
+            height: 2px;
+            width: 0;
+            opacity: 0;
+            position: absolute;
+            background: #fff;
+            bottom: 0;
+            transition: height 200ms, opacity 200ms;
+            border-right: solid 2px #fff;
           }
           .time {
             position: absolute;
@@ -140,12 +152,33 @@ body {
             font-size: 15px;
             top: 15px;
           }
+          .time-hover {
+            position: absolute;
+            z-index: 1001;
+            color: #fff;
+            left: 0;
+            width: 50px;
+            text-align: center;
+            font-size: 15px;
+            top: 15px;
+            opacity: 0;
+            transition: top 200ms, opacity 200ms;
+          }
           &:hover {
+            cursor: crosshair;
             .line {
+              height: 100%;
+            }
+            .line-hover {
+              opacity: 0.5;
               height: 100%;
             }
             .time {
               top: -20px;
+            }
+            .time-hover {
+              top: -20px;
+              opacity: 1;
             }
           }
         }

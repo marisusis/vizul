@@ -132,6 +132,8 @@ audio.ontimeupdate = function(event) {
   
 }
 
+var color__ = window.COLOR;
+
 //Rendering function
 
 function draw() {
