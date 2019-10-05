@@ -1,7 +1,7 @@
 //  (function(window) {
-var barCount = 127; //127
-var barSpacing = 5; //6
-var barWidth = 2; //1
+var barCount = 63; //127
+var barSpacing = 10; //6
+var barWidth = 8; //1
 var spectrumDimensionScalar = 4.5;
 var spectrumMaxExponent = 5;
 var spectrumMinExponent = 3;
@@ -152,6 +152,7 @@ function draw() {
   array = powTransform(array);
   array = normalizeAmplitude(array);
   array = experimentalTransform(array, 3);
+  handlePad(array);
 
   //Set the default fill style
   ctx.fillStyle = "#fff";
