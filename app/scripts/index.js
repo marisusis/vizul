@@ -123,7 +123,6 @@ $(document).ready(function() {
         
         window.COLOR = effects;
       }
-
     });
 
 
@@ -132,10 +131,10 @@ $(document).ready(function() {
   WebMidi.enable(function(err) {
     if (err) {
       console.log("WebMidi could not be enabled.", err);
-
     } else {
       console.log("WebMidi enabled!");
       output = WebMidi.getOutputByName("Launchpad Pro Standalone Port");
+
       input = WebMidi.getInputByName("Launchpad Pro Standalone Port");
 
       clearPad();
@@ -159,10 +158,10 @@ $(document).ready(function() {
 			sampleSize: 24
 		}})
 		.then(stream => {
-			initNodes(audioCtx.createMediaStreamSource(stream));
+      console.info("VIZUL: Initialized audio nodes");
+      initNodes(audioCtx.createMediaStreamSource(stream));
 		})
 		.catch(e=>console.log(e));
-
 });
 
 
@@ -189,9 +188,20 @@ function handlePad(array) {
       return Math.floor(a);
     })
     drawBars(bars3);
+    for (let i = 0; i < bottom.length; i++) {
+      let val = bottom[i];
+      let vel = math.floor(normalize(math.max(array.slice(0, 20)), 255, 0, bottomColor.length - 1, 0));
+      let c = bottomColor[vel];
+      if (c === undefined) c = bottomColor[bottomColor.length - 1];
+      output.playNote(val, midiChannel, {
+        velocity: c,
+        rawVelocity: true
+      });
+    }
   }
 }
 
+let bottom = [1,2,3,4,5,6,7,8,19,29,39,49,59,69,79,89,10,20,30,40,50,60,70,80,91,92,93,94,95,96,97,98];
 var map = [
   [11, 21, 31, 41, 51, 61, 71, 81],
   [12, 22, 32, 42, 52, 62, 72, 82],
@@ -202,6 +212,11 @@ var map = [
   [17, 27, 37, 47, 57, 67, 77, 87],
   [18, 28, 38, 48, 58, 68, 78, 88]
 ];
+
+let color = [57, 49, 41, 33, 25, 17, 9, 3];
+// let bottomColor = [31, 30, 29, 27, 26, 25, 23, 22, 21, 19, 18, 17, 15, 14, 13, 11, 10, 9, 7, 6, 5];
+// let bottomColor = [0,1,117,2,118,3,119,5];
+let bottomColor = [0,51,47,43,39,50,46,42,38,49,45,41,37];
 
 
 var volMap = [19, 29, 39, 49, 59, 69, 79, 89];
@@ -219,7 +234,7 @@ function drawBars(levels) {
         if (prev[i][j] == 0) {
           prev[i][j] = 1;
           output.playNote(section[j], midiChannel, {
-            velocity: Number(i) + colorAdd,
+            velocity: color[j],
             rawVelocity: true
           });
           messages++;
