@@ -1,8 +1,25 @@
 var colorAdd = 60;
 let midiChannel = 1;
 
+const gui = new dat.GUI();
+
+let app = {};
+
+
+function start() {
+  handlePad = function(){};
+  $(".container").addClass("mode--viz");
+  audio.play();
+}
+
 $(document).ready(function() {
   
+
+  // Initialize stats.js
+  app.stats = new Stats();
+  app.stats.showPanel( 0 );
+  document.body.appendChild( app.stats.domElement );
+
   var mouseX = 0;
   
   
@@ -215,8 +232,8 @@ var map = [
 
 let color = [57, 49, 41, 33, 25, 17, 9, 3];
 // let bottomColor = [31, 30, 29, 27, 26, 25, 23, 22, 21, 19, 18, 17, 15, 14, 13, 11, 10, 9, 7, 6, 5];
-// let bottomColor = [0,1,117,2,118,3,119,5];
-let bottomColor = [0,51,47,43,39,50,46,42,38,49,45,41,37];
+let bottomColor = [0,1,117,2,118,3,119,5];
+// let bottomColor = [0,51,47,43,39,50,46,42,38,49,45,41,37];
 
 
 var volMap = [19, 29, 39, 49, 59, 69, 79, 89];
@@ -258,5 +275,5 @@ function drawBars(levels) {
 }
 
 $(document).click(function() {
-  audioCtx.resume();
+  start();
 })

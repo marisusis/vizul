@@ -1,15 +1,15 @@
 //  (function(window) {
 var barCount = 63; //127 // 63
 var barSpacing = 2; //6 // 20
-var barWidth = 12; //1 // 8
+var barWidth = 10; //1 // 8
 var spectrumDimensionScalar = 4.5;
 var spectrumMaxExponent = 3;
 var spectrumMinExponent = 2;
 var spectrumExponentScale = 2;
 
-var spectrumMax = 400;
+var spectrumMax = 300;
 
-var smoothingPasses = 3;
+var smoothingPasses = 2;
 var smoothingPoints = 100;
 
 var playing = false;
@@ -21,7 +21,7 @@ var resRatio = (window.innerWidth / window.innerHeight);
 
 const resolution = 4096;
 
-var spectrumHeight = 400; //300
+var spectrumHeight = 300; //300
 
 function SpectrumEase(Value) {
 	return Math.pow(Value, SpectrumLogScale);
@@ -35,7 +35,7 @@ var canvas = document.getElementById("canvas");
 
 //Set canvas width and height
 canvas.width = (barCount * (barWidth + barSpacing));
-canvas.height = spectrumHeight + 60;
+canvas.height = spectrumHeight + 200; // 60
 
 //Get context
 var ctx = canvas.getContext("2d");
@@ -77,6 +77,19 @@ var panner = audioCtx.createStereoPanner();
 
 //Set gain
 gainNode.gain.value = 1;
+
+
+function drawMeter(ctx, array, segments, segmentWidth, segmentHeight, segmentXSpacing, segmentYSpacing) {
+	ctx.fillStyle = "#f00";
+
+	// Resize array to fit number of bins
+	let bins = largestTriangleThreeBuckets(array, segments);
+
+	for (let i = 0; i < bins.length; i++) {
+		let bin = bins[i];
+		// ctx.fillRect((segmentWidth + segmentXSpacing) * i, y)
+	}
+}
 
 function initNodes(source) {
 	//Connect the nodes
@@ -133,7 +146,7 @@ audio.ontimeupdate = function (event) {
 
 	$(".line").css({
 		"width": percent + "%"
-	})
+	});
 
 	$(".time").text(moment().minutes(0).seconds(audio.currentTime).format("mm:ss"));
 
@@ -141,29 +154,58 @@ audio.ontimeupdate = function (event) {
 
 var color__ = window.COLOR;
 
+function process(data, dt) {
+	let smallerData = largestTriangleThreeBuckets(data, 2048);
+	let array = superAlgorithm(smallerData, dt);
+// 	let superData = superAlgorithm(smallerData);
+
+	//Apply algorithms
+	array = GetVisualBins(smallerData);
+	array = normalizeAmplitude(array);
+
+	array = averageTransform(array);
+	array = exponentialTransform(array);
+
+
+	try {
+		array = superAlgorithm(array, dt);
+	} catch (e) {
+		console.error(e);
+		array = array;
+	}
+	// array = powTransform(array);
+// array = exponentialTransform(array);
+	// array = normalizeAmplitude(array);
+
+
+// 	array = savitskyGolaySmooth(array);
+	// array = experimentalTransform(array, 2);
+	handlePad(array);
+	return array;
+}
+
+
+let currentTime = window.performance.now();
+let last = window.performance.now();
+let dt = 0;
+
 //Rendering function
 
 function draw() {
+	app.stats.begin();
+	currentTime = window.performance.now();
+	dt = ( currentTime - last ) / 1000;
+	last = currentTime;
+	
 
 	//Clear the canvas
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	//Get the frequency data
 	analyserNode.getByteFrequencyData(dataArray);
-	let smallerData = largestTriangleThreeBuckets(dataArray, resolution);
-	// let superData = superAlgorithm(smallerData);
 
 
-	//Apply algorithms
-	var array = GetVisualBins(smallerData);
-  array = normalizeAmplitude(array);
-  array = superAlgorithm(array);
-	array = averageTransform(array);
-	array = exponentialTransform(array);
-	// array = savitskyGolaySmooth(array);
-	array = powTransform(array);
-	array = experimentalTransform(array, 3);
-	// handlePad(array);
+	let array = process(dataArray, dt);
 
 	//Set the default fill style
 	ctx.fillStyle = "#fff";
@@ -178,31 +220,55 @@ function draw() {
 	//Iterate over the frequencies
 	for (var i = 0; i < array.length; i++) {
 		const val = array[i];
+		const dz = params.dz[i] * 10;
+		const az = params.az[i] * 10;
+		const jz = params.jz[i] * 10;
 
-
+		
 
 		//Draw the bars
 		// ctx.fillStyle = _color(Math.floor(val)).css();
-		ctx.fillRect(i * (barWidth + barSpacing), canvas.height / 2 - val / 2, barWidth, val);
+		ctx.fillStyle = "rgba(255,255,255,1)";
+		// ctx.fillRect(i * (barWidth + barSpacing), canvas.height / 2 - val / 2, barWidth, val);
+		ctx.fillRect(i * (barWidth + barSpacing), canvas.height / 2, barWidth, -val);
+		ctx.fillStyle = "rgba(255,0,0,1)";
+		// ctx.fillRect(i * (barWidth + barSpacing), canvas.height / 2 , barWidth, -dz);
+		ctx.fillStyle = "rgba(0,255,0,1)";
+		// ctx.fillRect(i * (barWidth + barSpacing), canvas.height / 2 , barWidth, -az);
+		ctx.fillStyle = "rgba(0,0,255,1)";
+		// ctx.fillRect(i * (barWidth + barSpacing), canvas.height / 2 , barWidth, -jz);
 	}
+
+	drawMeter(ctx, array, 10, 10, 5, 4, 6);
 
 	//Cancel the rendering if the song isn't playing
 	if (playing) {
 		window.requestAnimationFrame(draw);
 	}
+
+	app.stats.end();
 };
 
 let resolution2 = barCount;
 params = {
+	// changes
 	dz: new Array(resolution2).fill(0),
-	lastdz: new Array(resolution2).fill(0),
-	lastBins: new Array(resolution2).fill(0),
-	lastddz: new Array(resolution2).fill(0),
-	ddz: new Array(resolution2).fill(0),
-	avgddz: new Array(resolution2).fill(0),
+	az: new Array(resolution2).fill(0),
+	jz: new Array(resolution2).fill(0),
+	dq: new Array(resolution2).fill(0),
+	// last changes
+	zLast: new Array(resolution2).fill(0),
+	dzLast: new Array(resolution2).fill(0),
+	azLast: new Array(resolution2).fill(0),
+	jzLast: new Array(resolution2).fill(0),
+	qLast: new Array(resolution2).fill(0),
+
+	// extra
 	maxddz: new Array(resolution2).fill(0),
-  intdz: new Array(resolution2).fill(0),
-  k: 1,
+
+	// constants
+	regionSize: 5,
+	k: 1,
 	avgMax: []
 }
 
@@ -211,36 +277,254 @@ function qalc(ddx, a = 0.1, b = 2.8) {
 	return math.pow(b, (-a * ddx));
 }
 
-function superAlgorithm(bins) {
-	let data = Array.from(bins);
+function extractRegion(array, regionSize, index) {
+	const len = array.length;
+	let offset = math.floor(regionSize / 2);
 
-	for (let i = 0; i < data.length; i++) {
-		params.dz[i] = data[i] - params.lastBins[i];
-		params.ddz[i] = params.dz[i] - params.lastdz[i];
-		params.avgddz[i] = (math.abs(params.ddz[i]) + params.avgddz[i]) / 2;
-		params.intdz[i] = params.intdz[i] + params.dz[i];
-	}
+	let left = index - offset;
+	let right = index + offset;
 
-	params.lastBins = _.clone(data);
-	params.lastdz = _.clone(params.dz);
-	params.lastddz = _.clone(params.ddz);
-	
-	
-	let max = math.max(data);
-	let mean = math.mean(data);
-  let meanddz = math.mean(_.map(params.ddz, x => math.abs(x)));
+	if (left < 0) left = 0;
+	if (right > len - 1) right = len - 1;
 
-	return data.map((x, i) => {
-		let ddz = params.ddz[i];
-		let addz = math.abs(ddz);
-		if (addz > meanddz) return x + addz/math.max(x,params.k);
-		else return x;
-	}).map(x => {
-    if (x < 1) return 1;
-    return x;
-  });
+	return array.slice(left, right);
 }
 
+// function superAlgorithm(bins) {
+// 	let data = Array.from(bins);
+
+// 	for (let i = 0; i < data.length; i++) {
+// 		// Timestep forward
+// 		params.dz[i] = data[i] - params.zLast[i];
+// 		params.az[i] = params.dz[i] - params.dzLast[i];
+// 		params.jz[i] = params.az[i] - params.azLast[i];
+// 	}
+
+// 	// Calculate helpful stuff
+// 	let max = math.max(data);
+// 	let mean = math.mean(data);
+// 	let meanDz = math.mean(_.map(params.dz, x => math.abs(x)));
+// 	let meanAz = math.mean(_.map(params.az, x => math.abs(x)));
+// 	let meanJz = math.mean(_.map(params.jz, x => math.abs(x)));
+
+// 	let ret = data.map((z, i) => {
+// 		let lastInc = params.lastInc[i];
+// 		let lastZ = params.lastBins[i];
+// 		let dz = params.dz[i];
+// 		let adz = math.abs(dz);
+// 		let ddz = params.ddz[i];
+// 		let addz = math.abs(ddz);
+// 		let lastAddz = math.abs(params.lastddz[i]);
+// 		let dddz = params.dddz[i];
+// 		let adddz = math.abs(dddz);
+// 		let inc = 0;
+// 		let zRatio = z / math.pow(lastZ,1.2);
+// 		if ( zRatio > 1 ) zRatio = lastZ / math.pow(z,1.2);
+
+// 		if (ddz > 0)  inc = math.pow(adz,1.7);
+// 		else inc = lastInc*zRatio;
+// 		if (inc < 0) inc = 0;
+// 		params.lastInc[i] = inc;
+// 		return z + inc;
+// 	}).map(x => {
+// 		if (x < 1) return 1;
+// 		return x;
+// 	}).map((x,i) => {
+// 		return x;
+//     });
+
+// params.lastBins = _.clone(data);
+// 	params.lastdz = _.clone(params.dz);
+// 	params.lastddz = _.clone(params.ddz);
+// 	params.lastdddz = _.clone(params.dddz);
+
+// 	return ret;
+// }
+
+function logistic(x, x0, L, k) {
+	return L / (1 + math.pow(math.E, (-k * (x - x0))));
+}
+
+function superAlgorithm(bins) {	
+	const data = Array.from(bins);
+	const fps = 1/dt;
+
+	for (let i = 0; i < data.length; i++) {
+		// Timestep forward
+		params.dz[i] = (data[i] - params.zLast[i]);
+		params.az[i] = (params.dz[i] - params.dzLast[i]);
+		params.jz[i] = (params.az[i] - params.azLast[i] );
+	}
+
+	// Calculate helpful stuff
+	const max = math.max(data);
+	const mean = math.mean(data);
+	const median = math.median(data);
+	// const meanDz = math.mean(_.map(params.dz, x => math.abs(x)));
+	// const meanAz = math.mean(_.map(params.az, x => math.abs(x)));
+	// const meanJz = math.mean(_.map(params.jz, x => math.abs(x)));
+
+
+// 	let q = new Array(data.length);
+	let result = new Array(data.length);
+
+	for (let i = 0; i < data.length; i++ ) {
+		const z = data[i];
+		const dz = params.dz[i];
+		const az = params.az[i];
+		const jz = params.jz[i];
+
+
+		let A = az;
+		result[i] = A;
+    }
+
+
+
+	params.zLast = _.clone(data);
+	params.dzLast = _.clone(params.dz);
+	params.azLast = _.clone(params.az);
+	params.jzLast = _.clone(params.jz);
+
+	return result;
+}
+// function superAlgorithm(bins) {
+// 	let data = Array.from(bins);
+
+// 	for (let i = 0; i < data.length; i++) {
+// 		// Timestep forward
+// 		params.dz[i] = data[i] - params.zLast[i];
+// 		params.az[i] = params.dz[i] - params.dzLast[i];
+// 		params.jz[i] = params.az[i] - params.azLast[i];
+// 	}
+
+// 	// Calculate helpful stuff
+// 	let max = math.max(data);
+// 	let mean = math.mean(data);
+// 	let median = math.median(data);
+// 	let meanDz = math.mean(_.map(params.dz, x => math.abs(x)));
+// 	let meanAz = math.mean(_.map(params.az, x => math.abs(x)));
+// 	let meanJz = math.mean(_.map(params.jz, x => math.abs(x)));
+
+
+
+// 	let ret = data.map(z => {
+// 		if (z < 0) return 0;
+// 		return z;
+// 	}).map((z, i) => {
+// 		let region = extractRegion(data, 8, i);
+// 		let power = logistic(params.dz[i] * math.mean(region) / z, 0, 1.1, 0.3);
+// 		const A = math.pow(z, power);
+// 		let region2= extractRegion(params.zLast, 16, i);
+
+// 		let B = z * (logistic(params.zLast[i] - math.mean(region2) ,0,2,0.7) - 1)  + A;
+// 		return B;
+// 	}).map(x => {
+// 		if (x < 1) return 1;
+// 		return x;
+// 	}).map((x, i) => {
+// 		return x;
+// 	});
+
+// 	params.zLast = _.clone(data);
+// 	params.dzLast = _.clone(params.dz);
+// 	params.azLast = _.clone(params.az);
+// 	params.jzLast = _.clone(params.jz);
+
+// 	return ret;
+// }
+
+// function superAlgorithm(bins) {
+// 	let data = Array.from(bins);
+
+// 	for (let i = 0; i < data.length; i++) {
+// 		// Timestep forward
+// 		params.dz[i] = data[i] - params.zLast[i];
+// 		params.az[i] = params.dz[i] - params.dzLast[i];
+// 		params.jz[i] = params.az[i] - params.azLast[i];
+// 	}
+
+// 	// Calculate helpful stuff
+// 	let max = math.max(data);
+// 	let mean = math.mean(data);
+// 	let median = math.median(data);
+// 	let meanDz = math.mean(_.map(params.dz, x => math.abs(x)));
+// 	let meanAz = math.mean(_.map(params.az, x => math.abs(x)));
+// 	let meanJz = math.mean(_.map(params.jz, x => math.abs(x)));
+
+
+
+// 	let ret = data.map(z => {
+// 		if (z < 0) return 0;
+// 		return z;
+// 	}).map((z, i) => {
+// 		let region = extractRegion(data, 16, i);
+// 		let power = logistic(params.dz[i] * math.mean(region) / z, 0, 1.2, 0.2);
+// 		const A = math.pow(z, power);
+// 		let region2= extractRegion(params.zLast, 32, i);
+
+// 		let B = z * (logistic(params.zLast[i] - math.mean(region2) ,0,2,0.3) - 1)  + A;
+// 		return B;
+// 	}).map(x => {
+// 		if (x < 1) return 1;
+// 		return x;
+// 	}).map((x, i) => {
+// 		return x;
+// 	});
+
+// 	params.zLast = _.clone(data);
+// 	params.dzLast = _.clone(params.dz);
+// 	params.azLast = _.clone(params.az);
+// 	params.jzLast = _.clone(params.jz);
+
+// 	return ret;
+// }
+
+// function superAlgorithm(bins) {
+// 	let data = Array.from(bins);
+
+// 	for (let i = 0; i < data.length; i++) {
+// 		// Timestep forward
+// 		params.dz[i] = data[i] - params.zLast[i];
+// 		params.az[i] = params.dz[i] - params.dzLast[i];
+// 		params.jz[i] = params.az[i] - params.azLast[i];
+// 	}
+
+// 	// Calculate helpful stuff
+// 	let max = math.max(data);
+// 	let mean = math.mean(data);
+// 	let median = math.median(data);
+// 	let meanDz = math.mean(_.map(params.dz, x => math.abs(x)));
+// 	let meanAz = math.mean(_.map(params.az, x => math.abs(x)));
+// 	let meanJz = math.mean(_.map(params.jz, x => math.abs(x)));
+
+
+
+// 	let ret = data.map(z => {
+// 		if (z < 0) return 0;
+// 		return z;
+// 	}).map((z, i) => {
+// 		let region = extractRegion(params.dz, 16, i);
+// 		let power = logistic(params.dz[i] * mean / z, 0, 1.2, 0.2);
+// 		const A = math.pow(z, power);
+// 		let region2= extractRegion(params.zLast, 32, i);
+
+// 		let B = z * logistic(params.zLast[i] - math.mean(region2) ,0,1,0.4) + A;
+// 		return B;
+// 	}).map(x => {
+// 		if (x < 1) return 1;
+// 		return x;
+// 	}).map((x, i) => {
+// 		return x;
+// 	});
+
+// 	params.zLast = _.clone(data);
+// 	params.dzLast = _.clone(params.dz);
+// 	params.azLast = _.clone(params.az);
+// 	params.jzLast = _.clone(params.jz);
+
+// 	return ret;
+// }
 
 function diff(a, b) {
 	return math.abs(a - b) / ((a + b) / 2);
